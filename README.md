@@ -5,7 +5,7 @@
 We are creating an e-commerce platform. We have narrowed everything down to 4 entities and there respective operations for now. 
 openapi doc on the way!
 
-There are 4 entities:
+There are 5 entities:
 
 1. Product
 2. Inventory
