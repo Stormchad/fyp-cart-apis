@@ -8,26 +8,6 @@ const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
 
-calculateTotalBill = (cartNumber) => {
-
-    const cart = Cart.findOne({cartnumber})
-
-    if(!cart)
-    {
-        return {message: "Cart not found"}
-    }
-    else
-    {
-        let total = 0;
-        for(var i = 0; i < cart.products.length;i++)
-        {
-            total = total + cart.products[i].productPrice
-        }
-        return total
-    }
-
-}
-
 
 router.post('/admin/cart/create', async (req, res) => {
 
@@ -57,9 +37,9 @@ router.post('/admin/cart/create', async (req, res) => {
 
 
 //delete cart by cart id
-router.delete('/cart/:id',async (req,res) => {
+router.delete('/cart/:cartId',async (req,res) => {
     
-    _id = req.params.id
+    _id = req.params.cartId
     if(_id == null)
     {
         res.status(400).send({message: "Please enter a cartId"})
@@ -89,7 +69,7 @@ router.delete('/cart/:id',async (req,res) => {
 })
 
 //get all carts
-router.get('/cart/',async(req,res)=>{
+router.get('/carts',async(req,res)=>{
     try
     {
         const carts = await Cart.find()
@@ -103,9 +83,9 @@ router.get('/cart/',async(req,res)=>{
 
 
 //get cart by cartId
-router.get('/cart/:id', async (req,res)=>{
+router.get('/cart/:cartId', async (req,res)=>{
 
-    _id = req.params.id
+    _id = req.params.cartId
     try
     {
         const cart = await Cart.findOne({_id})
@@ -255,19 +235,19 @@ router.post('/cart/removeFromCart/:cartNumber', async (req,res) => {
 })
 
 //reset cart
-router.post('/admin/cart/reset/:cartNumber', async (req,res)=>{
+router.post('/admin/cart/reset/:cartId', async (req,res)=>{
 
-    cartNumber = req.params.cartNumber
+    _id = req.params.cartId
 
     if(cartNumber == null)
     {
-        res.status(400).send({message:"Please enter cartNumber"})
+        res.status(400).send({message:"Please enter cartId"})
     }
     else
     {
         try
         {
-            const cart = await Cart.findOneAndUpdate({cartNumber},{ $set: {products:[], totalBill:0, checkoutComplete: false, userConnection:false, username: null}})
+            const cart = await Cart.findOneAndUpdate({_id},{ $set: {products:[], totalBill:0, checkoutComplete: false, userConnection:false, username: null}})
             res.status(200).send({message:"SUCCESS",cart})
         }
         catch(e)
@@ -282,9 +262,9 @@ router.post('/admin/cart/reset/:cartNumber', async (req,res)=>{
 
 
 //delete cart by cartId
-router.delete('/admin/cart/:id', async(req,res)=>{
+router.delete('/admin/cart/:cartId', async(req,res)=>{
 
-    _id = req.params.id
+    _id = req.params.cartId
     if(_id == null)
     {
         res.send(400).status({message:"Please enter cartId"})
@@ -330,11 +310,12 @@ router.get('/carts/connection', async(req,res)=>{
 
 })
 
-router.post('/payment', async (req,res)=>{
+//payment 
+router.post('/payment/:cartId', async (req,res)=>{
 
         try
         {
-
+            
             
 
         }
@@ -344,8 +325,31 @@ router.post('/payment', async (req,res)=>{
         }
         
 
+})
+
+//cartTotal 
+router.post('/getTotal/:cartId', async (req,res)=>{
+
+    _id = req.params.cartId
+
+    if(_id == null || _id == "")
+    {
+        res.status(400).send({message:"please enter _id"})
+    }
+    try
+    {
+        const cart = await Cart.findOne({_id})
+        res.status(200).send({total: cart.totalBill})
+    }
+    catch(e)
+    {
+        res.status(400).send({message:"some error occured",e})
+    }
+    
 
 })
+
+
 
 
 module.exports = router
