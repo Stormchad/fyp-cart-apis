@@ -183,7 +183,7 @@
 
 
         //get all users
-        router.get('/users/', verifyToken , async (req, res) => {
+        router.get('/users/', async (req, res) => {
                 const list = await User.find()
                 res.status(200).send({list})
 
@@ -364,15 +364,10 @@
 
             try
             {
-
                 const token = req.header('Authorization')
-
                 const decoded = jwt.verify(token, "IOTCART")
-
                 const username = decoded.user.username
-
                 const user = await User.findOneAndUpdate({ username },{$set: {token: null}})
-                
                 res.status(200).send({message:"user logged out successfully!"})
 
             }
@@ -380,11 +375,67 @@
             {
                 res.status(400).send({ message: "Some error occured", e})
             }
-
-
-
         })
+        
 
+        router.put('/user/:userId', async (req, res) => {
 
+            _id = req.params.userId
+            jsonBody = req.body
+
+            if(_id == null)
+            {
+                res.status(400).send({ message: "Please enter userId"})
+            }
+            else
+            {
+                try
+                {
+                    for (var key in jsonBody) 
+                    {
+
+                        if(key.trim() == "username")
+                        {
+                            await User.findOneAndUpdate({_id},{username: jsonBody[key]})
+                        }
+                        else if(key.trim() == "email")
+                        {
+                            await User.findOneAndUpdate({_id},{email: jsonBody[key]})
+                        }
+                        else if(key.trim() == "password")
+                        {
+                            await User.findOneAndUpdate({_id},{password: jsonBody[key]})
+                        }
+                        else if(key.trim() == "displayName")
+                        {
+                            await User.findOneAndUpdate({_id},{displayName: jsonBody[key]})
+                        }
+                        else if(key.trim() == "cartConnection")
+                        {
+                            await User.findOneAndUpdate({_id},{cartConnection: jsonBody[key]})
+                        }
+                        else if(key.trim() == "specialCode")
+                        {
+                            await User.findOneAndUpdate({_id},{specialCode: jsonBody[key]})
+                        }
+                        else
+                        {
+                            console.log("no key value match")
+                        }
+
+                    }
+
+                    const userNew = await User.findOne({_id})
+                    res.status(200).send({userNew})
+
+                }
+                catch(e)
+                {
+                    res.status(400).send({ message: "Some error occured", e})
+                }
+            }
+            
+        })
+        
 
         module.exports = router

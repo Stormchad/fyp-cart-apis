@@ -349,7 +349,4 @@ router.post('/getTotal/:cartId', async (req,res)=>{
 
 })
 
-
-
-
 module.exports = router
