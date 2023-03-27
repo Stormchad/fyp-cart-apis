@@ -325,7 +325,7 @@ router.post('/payment/:cartId', async (req,res)=>{
         }
         
 
-})
+
 
 //cartTotal 
 router.post('/getTotal/:cartId', async (req,res)=>{
@@ -348,7 +348,6 @@ router.post('/getTotal/:cartId', async (req,res)=>{
     
 
 })
-
 
 
 
