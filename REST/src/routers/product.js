@@ -55,9 +55,9 @@ router.get('/products',async( req , res ) => {
 
 
 //get product by product id
-router.get('/product/:id', async ( req, res) => {
+router.get('/product/:productId', async ( req, res) => {
 
-    _id = req.params.id
+    _id = req.params.productId
 
     if(_id == null)
     {
@@ -79,7 +79,8 @@ router.get('/product/:id', async ( req, res) => {
 
 })
 
-router.get('/product/', async ( req , res ) => {
+//get product by product name
+router.get('/product', async ( req , res ) => {
 
     productName = req.body.productName
 
@@ -103,9 +104,9 @@ router.get('/product/', async ( req , res ) => {
 
 })
 
-router.delete('/admin/product/:id', async ( req , res ) => {
+router.delete('/admin/product/:productId', async ( req , res ) => {
 
-    _id  = req.params.id
+    _id  = req.params.productId
 
     if(_id == null)
     {
@@ -124,6 +125,54 @@ router.delete('/admin/product/:id', async ( req , res ) => {
         }
         
     }
+})
+
+//update user
+router.put('/product/:productId', async (req, res) => {
+
+    _id = req.params.productId
+    jsonBody = req.body
+
+    if(_id == null)
+    {
+        res.status(400).send({ message: "Please enter productId"})
+    }
+    else
+    {
+        try
+        {
+            for (var key in jsonBody) 
+            {
+
+                if(key.trim() == "productName")
+                {
+                    await Product.findOneAndUpdate({_id},{productName: jsonBody[key]})
+                }
+                else if(key.trim() == "productPrice")
+                {
+                    await Product.findOneAndUpdate({_id},{productPrice: jsonBody[key]})
+                }
+                else if(key.trim() == "productCode")
+                {
+                    await Product.findOneAndUpdate({_id},{productCode: jsonBody[key]})
+                }
+                else
+                {
+                    console.log("no key value match")
+                }
+
+            }
+
+            const productNew = await Product.findOne({_id})
+            res.status(200).send({productNew})
+
+        }
+        catch(e)
+        {
+            res.status(400).send({ message: "Some error occured", e})
+        }
+    }
+    
 })
 
 
