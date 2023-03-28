@@ -87,9 +87,16 @@
         {
             try
             {
-                const user = await User.findOne({ username , password })
+                
+                let user = await User.findOne({ username , password })
+                if(!user)
+                {
+                    res.status(404).send({message: "user not found"})
+                }
+                else
+                {
+                    const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
 
-                const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
                 if(!user)
                 {
                     res.status(404).send({message:"User not found"})
@@ -100,6 +107,8 @@
                     await User.findOneAndUpdate({ username,password },{ $set: {token} })
                     res.status(200).send({ token })
                 }
+                }
+
                 
             }
             catch(e)
@@ -183,7 +192,7 @@
 
 
         //get all users
-        router.get('/users/', async (req, res) => {
+        router.get('/users', async (req, res) => {
                 const list = await User.find()
                 res.status(200).send({list})
 
@@ -191,10 +200,10 @@
 
 
         //get user by id
-        router.get('/user/:id', async (req, res) => {
+        router.get('/user/:userId', async (req, res) => {
         try 
         {
-            let _id = req.params.id
+            let _id = req.params.userId
             const user = await User.findOne({_id})
             if(user)
             {
@@ -235,17 +244,17 @@
 
 
         //connect to cart
-        router.post('/connect/user/:id/cart/:cartNumber', async (req, res) => {
+        router.post('/connect/user/:userId/cart/:cartId', async (req, res) => {
 
         let specialCode = req.body.specialCode
-        let cartNumber = req.params.cartNumber
-        let _id = req.params.id
+        let cartId = req.params.cartId
+        let _id = req.params.userId
 
         if(specialCode == null)
         {
             res.status(400).send({message: "Please enter special Code"})
         }
-        else if(cartNumber == null)
+        else if(cartId == null)
         {
             res.status(400).send({message: "Please enter cartNumber"})
         }
@@ -258,7 +267,7 @@
             try
             {
                 const user = await User.findOne({_id})
-                const cart = await Cart.findOne({cartNumber})
+                const cart = await Cart.findOne({_id: cartId})
                 if(!user)
                 {
                     res.status(400).send({message: "User not found"})
@@ -282,7 +291,7 @@
                 else
                 {
                     const dispUser = await User.findOneAndUpdate({ _id },{ cartConnection:true })
-                    const dispCart = await Cart.findOneAndUpdate({ cartNumber },{ username:user.username , userConnection:true })
+                    const dispCart = await Cart.findOneAndUpdate({ _id: cartId },{ username:user.username , userConnection:true })
                     res.status(200).send({message: "SUCCESS",dispCart, dispUser})
                 }
                 
@@ -298,11 +307,11 @@
 
 
         //remove cart connection
-        router.post('/disconnect/user/:id',async (req,res) => {
+        router.post('/disconnect/user/:userId',async (req,res) => {
 
         try
         {
-            _id = req.params.id
+            _id = req.params.userId
             const user = await User.findOne({_id})
 
             if(!user)
@@ -334,12 +343,12 @@
 
 
         //delete user
-        router.delete('/user/:id', verifyToken ,async (req,res) => {
+        router.delete('/user/:userId', verifyToken ,async (req,res) => {
 
 
         try
         {
-            let _id = req.params.id
+            let _id = req.params.userId
             if(_id == null)
             {
                 res.status(400).send({message:"Please enter user id"})

@@ -99,12 +99,12 @@ router.get('/cart/:cartId', async (req,res)=>{
 })
 
 //add to cart
-router.post('/cart/addToCart/:cartNumber', verifyToken , async (req,res) => {
+router.post('/cart/addToCart/:cartId', verifyToken , async (req,res) => {
 
         productCode = req.body.productCode
-        cartNumber = req.params.cartNumber
+        _id = req.params.cartId
 
-        if(cartNumber == null)
+        if(_id == null)
         {
             res.status(400).send({message:"Please enter cart number"})
         }
@@ -118,7 +118,7 @@ router.post('/cart/addToCart/:cartNumber', verifyToken , async (req,res) => {
             try
             {
                 const product = await Product.findOne({productCode: productCode})
-                const cart = await Cart.findOne({cartNumber})
+                const cart = await Cart.findOne({_id})
                 const inventory = await Inventory.findOne({productCode:productCode})
         
                 if(!product)
@@ -146,9 +146,9 @@ router.post('/cart/addToCart/:cartNumber', verifyToken , async (req,res) => {
                     }
                     let q = inventory.quantity
                     await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q - 1 })
-                    await Cart.findOneAndUpdate({cartNumber},{$push:{products: product}})
-                    await Cart.findOneAndUpdate({cartNumber},{$set: {totalBill: total}})
-                    res.status(200).send(await Cart.findOne({cartNumber}))
+                    await Cart.findOneAndUpdate({_id},{$push:{products: product}})
+                    await Cart.findOneAndUpdate({_id},{$set: {totalBill: total}})
+                    res.status(200).send(await Cart.findOne({_id}))
                 }
             }
             catch(e)
@@ -160,21 +160,9 @@ router.post('/cart/addToCart/:cartNumber', verifyToken , async (req,res) => {
     
 })
 
-router.post('/cart/removeFromCart/:cartNumber', async (req,res) => {
+router.post('/cart/removeFromCart/:cartId', async (req,res) => {
 
-    cartNumber = req.params.cartNumber
-    productCode = req.body.productCode
-
-
-    if(cartNumber = null)
-    {
-        res.status(400).send({message: "Please enter a cart number"})
-    }
-    else if(productCode == null)
-    {
-        res.status(400).send({message: "Please enter a product code"})
-    }
-    cartNumber = req.params.cartNumber
+        _id = req.params.cartId
         productCode = req.body.productCode
 
         if(cartNumber == null)
@@ -191,7 +179,7 @@ router.post('/cart/removeFromCart/:cartNumber', async (req,res) => {
             try
             {
                 const product = await Product.findOne({productCode: productCode})
-                const cart = await Cart.findOne({cartNumber})
+                const cart = await Cart.findOne({_id})
                 const inventory = await Inventory.findOne({productCode:productCode})
         
                 if(!product)
@@ -219,9 +207,9 @@ router.post('/cart/removeFromCart/:cartNumber', async (req,res) => {
                     }
                     let q = inventory.quantity
                     await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q + 1 })
-                    await Cart.findOneAndUpdate({cartNumber},{$pull:{products: product}})
-                    await Cart.findOneAndUpdate({cartNumber},{$set: {totalBill: total}})
-                    res.status(200).send(await Cart.findOne({cartNumber}))
+                    await Cart.findOneAndUpdate({_id},{$pull:{products: product}})
+                    await Cart.findOneAndUpdate({_id},{$set: {totalBill: total}})
+                    res.status(200).send(await Cart.findOne({_id}))
                 }
             }
             catch(e)
@@ -279,7 +267,7 @@ router.delete('/admin/cart/:cartId', async(req,res)=>{
 
 
 //delete cart by cart number
-router.delete('/admin/cart/', async(req,res)=>{
+router.delete('/admin/cart', async(req,res)=>{
 
     cartNumber = req.body.cartNumber
     if(cartNumber == null)
