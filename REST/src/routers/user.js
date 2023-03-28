@@ -378,6 +378,7 @@
         })
         
 
+        //update user
         router.put('/user/:userId', async (req, res) => {
 
             _id = req.params.userId
