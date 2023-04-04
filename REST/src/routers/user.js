@@ -5,29 +5,19 @@
         const jwt = require('jsonwebtoken')
         const router = new express.Router()
         const dotenv = require('dotenv');
+        const bcrypt = require('bcrypt')
         dotenv.config()
 
 
         const generateSpecialCode = () =>{
-
         return Math.random().toString(36).slice(2, 7);
-
         }
 
         const isAdmin = (token) =>{
-
         const decoded = jwt.verify(token, process.env.SECRET_KEY)
-
         const adminPrevilages = decoded.user.adminPrevilages
-
-        if(adminPrevilages == true)
-        {
-            return true
-        }
-        else
-        {
-            return false;
-        }
+        if(adminPrevilages == true){   return true  }
+        else{   return false;   }
 
         }
 
@@ -46,19 +36,31 @@
         {
             try
             {
-                let user = await User.findOne({ username , password, adminPrevilages:true })
+                let user = await User.findOne({ username, adminPrevilages: true })
 
                 if(!user)
                 {
-                    res.status(404).send({message:"User not found / User not an admin"})
+                    res.status(404).send({message: "user not found"})
                 }
                 else
                 {
-                        let userinfo = { username:user.username, email: user.email, password:user.password, adminPrevilages:user.adminPrevilages }
-                        console.log(userinfo)
-                        const token = jwt.sign({ userinfo }, "IOTCART", { expiresIn:'300s' })
-                        await User.findOneAndUpdate({ username , password },{ $set: { token } })
+                    
+                    const validPass = await bcrypt.compare( password, user.password )
+
+                    if(validPass)
+                    {
+                        const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
+
+                        const token = jwt.sign({ newUser }, "IOTCART", { expiresIn:'300s' })
+                        await User.findOneAndUpdate({ username,password },{ $set: {token} })
                         res.status(200).send({ token })
+                    }
+                    else
+                    {
+                        res.status(500).send({message:"login failed."})        
+                    }
+                    
+
                 }
                 
             }
@@ -87,19 +89,34 @@
         {
             try
             {
-                const user = await User.findOne({ username , password })
+                
+                let user = await User.findOne({ username })
 
-                const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
                 if(!user)
                 {
-                    res.status(404).send({message:"User not found"})
+                    res.status(404).send({message: "user not found"})
                 }
                 else
                 {
-                    const token = jwt.sign({ newUser }, "IOTCART", { expiresIn:'300s' })
-                    await User.findOneAndUpdate({ username,password },{ $set: {token} })
-                    res.status(200).send({ token })
+                    
+                    const validPass = await bcrypt.compare( password, user.password )
+
+                    if(validPass)
+                    {
+                        const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
+
+                        const token = jwt.sign({ newUser }, "IOTCART", { expiresIn:'300s' })
+                        await User.findOneAndUpdate({ username,password },{ $set: {token} })
+                        res.status(200).send({ token })
+                    }
+                    else
+                    {
+                        res.status(500).send({message:"login failed."})        
+                    }
+                    
+
                 }
+
                 
             }
             catch(e)
@@ -112,47 +129,39 @@
 
 
         //create new user
-        router.post('/user/create', verifyToken, async (req, res) => {
+        router.post('/users/register', async (req, res) => {
 
-        const token = req.header('Authorization')
-
-        if(isAdmin(token) == false)
-        {
-            res.status(500).send({message: "This is an admin operation"})
-        }
-        else
-        {
             let username = req.body.username
             let email = req.body.email
             let password = req.body.password
             let displayName = req.body.displayName
+
+            const hashedPassword = await bcrypt.hash(password, 8)
             
-            try{
-
-            var spc = generateSpecialCode()
-
-            var user = await User.findOne({ username: username , email: email })
-            if(!user)
+            try
             {
-                const user1 = new User({ username,specialCode: spc , email, password, displayName, adminPrevilages:false })
-                await user1.save()
-                res.status(200).send({message: "SUCCESS", user1 })
-            }
-            else{
-                res.status(400).send({ message: "user already exists" })
-            }
+                var spc = generateSpecialCode()
+                var user = await User.findOne({ username: username , email: email })
+                if(!user)
+                {
+                    const user1 = new User({ username,specialCode: spc , email, password: hashedPassword, displayName, adminPrevilages:false })
+
+                    await user1.save()
+                    res.status(200).send({message: "SUCCESS", user1 })
+                }
+                else
+                {
+                    res.status(400).send({ message: "user already exists" })
+                }
             }
             catch(e)
             {
                 res.status(400).send({ message: "Some error occured", e})
             }
-        }
-
-
         })
 
         //create new admin
-        router.post('/admin/create', async (req, res) => {
+        router.post('/admins/register', async (req, res) => {
 
         let username = req.body.username
         let email = req.body.email
@@ -166,7 +175,10 @@
         var user = await User.findOne({ username: username , email: email })
         if(!user)
         {
-            const user1 = new User({ username,specialCode: spc , email, password, displayName, adminPrevilages:true })
+            
+            const hashedPassword = await bcrypt.hash(password, 10)
+
+            const user1 = new User({ username,specialCode: spc , email, password: hashedPassword, displayName, adminPrevilages:true })
             await user1.save()
             res.status(200).send({message: "SUCCESS", user1 })
         }
@@ -183,7 +195,7 @@
 
 
         //get all users
-        router.get('/users/', async (req, res) => {
+        router.get('/users', async (req, res) => {
                 const list = await User.find()
                 res.status(200).send({list})
 
@@ -191,10 +203,10 @@
 
 
         //get user by id
-        router.get('/user/:id', async (req, res) => {
+        router.get('/user/:userId', async (req, res) => {
         try 
         {
-            let _id = req.params.id
+            let _id = req.params.userId
             const user = await User.findOne({_id})
             if(user)
             {
@@ -235,17 +247,17 @@
 
 
         //connect to cart
-        router.post('/connect/user/:id/cart/:cartNumber', async (req, res) => {
+        router.post('/connect/user/:userId/cart/:cartId', async (req, res) => {
 
         let specialCode = req.body.specialCode
-        let cartNumber = req.params.cartNumber
-        let _id = req.params.id
+        let cartId = req.params.cartId
+        let _id = req.params.userId
 
         if(specialCode == null)
         {
             res.status(400).send({message: "Please enter special Code"})
         }
-        else if(cartNumber == null)
+        else if(cartId == null)
         {
             res.status(400).send({message: "Please enter cartNumber"})
         }
@@ -258,7 +270,7 @@
             try
             {
                 const user = await User.findOne({_id})
-                const cart = await Cart.findOne({cartNumber})
+                const cart = await Cart.findOne({_id: cartId})
                 if(!user)
                 {
                     res.status(400).send({message: "User not found"})
@@ -282,7 +294,7 @@
                 else
                 {
                     const dispUser = await User.findOneAndUpdate({ _id },{ cartConnection:true })
-                    const dispCart = await Cart.findOneAndUpdate({ cartNumber },{ username:user.username , userConnection:true })
+                    const dispCart = await Cart.findOneAndUpdate({ _id: cartId },{ username:user.username , userConnection:true })
                     res.status(200).send({message: "SUCCESS",dispCart, dispUser})
                 }
                 
@@ -298,11 +310,11 @@
 
 
         //remove cart connection
-        router.post('/disconnect/user/:id',async (req,res) => {
+        router.post('/disconnect/user/:userId',async (req,res) => {
 
         try
         {
-            _id = req.params.id
+            _id = req.params.userId
             const user = await User.findOne({_id})
 
             if(!user)
@@ -334,12 +346,12 @@
 
 
         //delete user
-        router.delete('/user/:id', verifyToken ,async (req,res) => {
+        router.delete('/user/:userId', verifyToken ,async (req,res) => {
 
 
         try
         {
-            let _id = req.params.id
+            let _id = req.params.userId
             if(_id == null)
             {
                 res.status(400).send({message:"Please enter user id"})
