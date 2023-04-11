@@ -8,8 +8,15 @@ const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
 
+const createLineProduct = (product, quantity) =>{
 
-router.post('/admin/cart/create', async (req, res) => {
+    const { productName, productCode, productPrice } = product
+    const lineProduct = { productName, productCode, productPrice, quantity }
+    return lineProduct
+}
+
+
+router.post('/admin/carts/create', verifyToken , async (req, res) => {
 
     let cartNumber = req.body.cartNumber
     const cart = await Cart.findOne({cartNumber})
@@ -99,9 +106,10 @@ router.get('/cart/:cartId', async (req,res)=>{
 })
 
 //add to cart
-router.post('/cart/addToCart/:cartId', verifyToken , async (req,res) => {
+router.post('/cart/addToCart/:cartId', async (req,res) => {
 
         productCode = req.body.productCode
+        quantity = req.body.quantity
         _id = req.params.cartId
 
         if(_id == null)
@@ -139,14 +147,26 @@ router.post('/cart/addToCart/:cartId', verifyToken , async (req,res) => {
                 }                
                 else
                 {
+                    
+                    lineProduct = createLineProduct(product,quantity)
+
+                    //logic for total
                     let total = 0;
                     for(var i = 0; i < cart.products.length;i++)
                     {
 	                    total = total + cart.products[i].productPrice
                     }
+
                     let q = inventory.quantity
+
+                    //reducing inventory count
                     await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q - 1 })
-                    await Cart.findOneAndUpdate({_id},{$push:{products: product}})
+
+                    //adding product in cart
+                    await Cart.findOneAndUpdate({_id},{$addToSet: {products: lineProduct}})
+                    
+
+                    //updating total bill
                     await Cart.findOneAndUpdate({_id},{$set: {totalBill: total}})
                     res.status(200).send(await Cart.findOne({_id}))
                 }
@@ -160,67 +180,11 @@ router.post('/cart/addToCart/:cartId', verifyToken , async (req,res) => {
     
 })
 
-router.post('/cart/removeFromCart/:cartId', async (req,res) => {
 
-        _id = req.params.cartId
-        productCode = req.body.productCode
+// increase decrease quantity
+// remove product from cart
 
-        if(cartNumber == null)
-        {
-            res.status(400).send({message:"Please enter cart number"})
-        }
-        else if(productCode == null)
-        (
-            res.status(400).send({message:"Please enter product code"})
-        )
-        else
-        {
 
-            try
-            {
-                const product = await Product.findOne({productCode: productCode})
-                const cart = await Cart.findOne({_id})
-                const inventory = await Inventory.findOne({productCode:productCode})
-        
-                if(!product)
-                {
-                res.status(400).send({message: "product with this product code not found"})
-                }
-                else if(!inventory)
-                {
-                    res.status(400).send({message: "Inventory not found for this product"})
-                }
-                else if(!cart)
-                {
-                    res.status(400).send({message: "Cart not found"})
-                }
-                else if(cart.userConnection == false)
-                {
-                    res.status(400).send({message: "Please connect to a cart first"})
-                }                
-                else
-                {
-                    let total = 0;
-                    for(var i = 0; i < cart.products.length;i++)
-                    {
-	                    total = total + cart.products[i].productPrice
-                    }
-                    let q = inventory.quantity
-                    await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q + 1 })
-                    await Cart.findOneAndUpdate({_id},{$pull:{products: product}})
-                    await Cart.findOneAndUpdate({_id},{$set: {totalBill: total}})
-                    res.status(200).send(await Cart.findOne({_id}))
-                }
-            }
-            catch(e)
-            {
-                res.status(400).send({message: "Error occured",e})
-            }
-
-        }
-    
-
-})
 
 //reset cart
 router.post('/admin/cart/reset/:cartId', async (req,res)=>{
