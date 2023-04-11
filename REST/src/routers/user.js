@@ -203,7 +203,7 @@
 
 
         //get user by id
-        router.get('/user/:userId', async (req, res) => {
+        router.get('/user/:userId', verifyToken , async (req, res) => {
         try 
         {
             let _id = req.params.userId
@@ -225,7 +225,7 @@
 
 
         //get user by username
-        router.get('/users/username', async (req, res) => {
+        router.get('/users/username', verifyToken , async (req, res) => {
         try 
         {
             let username = req.body.username
@@ -247,7 +247,7 @@
 
 
         //connect to cart
-        router.post('/connect/user/:userId/cart/:cartId', async (req, res) => {
+        router.post('/connect/user/:userId/cart/:cartId', verifyToken , async (req, res) => {
 
         let specialCode = req.body.specialCode
         let cartId = req.params.cartId
@@ -310,7 +310,7 @@
 
 
         //remove cart connection
-        router.post('/disconnect/user/:userId',async (req,res) => {
+        router.post('/disconnect/user/:userId', verifyToken ,async (req,res) => {
 
         try
         {
@@ -391,7 +391,7 @@
         
 
         //update user
-        router.put('/user/:userId', async (req, res) => {
+        router.put('/user/:userId', verifyToken , async (req, res) => {
 
             _id = req.params.userId
             jsonBody = req.body

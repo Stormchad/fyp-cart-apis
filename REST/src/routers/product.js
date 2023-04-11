@@ -3,12 +3,12 @@ const User = require('../models/user')
 const Cart = require('../models/cart')
 const Inventory = require('../models/Inventory')
 const Product = require('../models/Product')
-const auth = require('../middleware/verifyToken')
+const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
 
 //create new product
-router.post('/admin/product/create', async (req,res) =>{
+router.post('/admin/product/create', verifyToken , async (req,res) =>{
 
     productCode = req.body.productCode
     productName = req.body.productName
@@ -46,7 +46,7 @@ router.post('/admin/product/create', async (req,res) =>{
 
 
 //get all products
-router.get('/products',async( req , res ) => {
+router.get('/products', verifyToken ,async( req , res ) => {
 
     const products = await Product.find()
     res.status(200).send(products)
@@ -55,7 +55,7 @@ router.get('/products',async( req , res ) => {
 
 
 //get product by product id
-router.get('/product/:productId', async ( req, res) => {
+router.get('/product/:productId', verifyToken , async ( req, res) => {
 
     _id = req.params.productId
 
@@ -80,7 +80,7 @@ router.get('/product/:productId', async ( req, res) => {
 })
 
 //get product by product name
-router.get('/product', async ( req , res ) => {
+router.get('/product', verifyToken ,async ( req , res ) => {
 
     productName = req.body.productName
 
@@ -104,7 +104,7 @@ router.get('/product', async ( req , res ) => {
 
 })
 
-router.delete('/admin/product/:productId', async ( req , res ) => {
+router.delete('/admin/product/:productId', verifyToken , async ( req , res ) => {
 
     _id  = req.params.productId
 
@@ -128,7 +128,7 @@ router.delete('/admin/product/:productId', async ( req , res ) => {
 })
 
 //update user
-router.put('/product/:productId', async (req, res) => {
+router.put('/product/:productId', verifyToken ,async (req, res) => {
 
     _id = req.params.productId
     jsonBody = req.body
