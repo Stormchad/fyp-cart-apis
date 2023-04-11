@@ -7,15 +7,6 @@ const auth = require('../middleware/verifyToken')
 const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
-
-const createLineProduct = (product, quantity) =>{
-
-    const { productName, productCode, productPrice } = product
-    const lineProduct = { productName, productCode, productPrice, quantity }
-    return lineProduct
-}
-
-
 router.post('/admin/carts/create', verifyToken , async (req, res) => {
 
     let cartNumber = req.body.cartNumber
@@ -147,8 +138,6 @@ router.post('/cart/addToCart/:cartId', async (req,res) => {
                 }                
                 else
                 {
-                    
-                    lineProduct = createLineProduct(product,quantity)
 
                     //logic for total
                     let total = 0;
@@ -163,7 +152,7 @@ router.post('/cart/addToCart/:cartId', async (req,res) => {
                     await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q - 1 })
 
                     //adding product in cart
-                    await Cart.findOneAndUpdate({_id},{$addToSet: {products: lineProduct}})
+                    await Cart.findOneAndUpdate({_id},{$push: {products: product}})
                     
 
                     //updating total bill
