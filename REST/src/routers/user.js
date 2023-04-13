@@ -52,8 +52,8 @@
                         const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
 
                         const token = jwt.sign({ newUser }, "IOTCART", { expiresIn:'300s' })
-                        await User.findOneAndUpdate({ username,password },{ $set: {token} })
-                        res.status(200).send({ token })
+                        const newUser1 = await User.findOneAndUpdate({ username,password },{ $set: {token} })
+                        res.status(200).send({ newUser1 })
                     }
                     else
                     {
@@ -106,8 +106,8 @@
                         const newUser = { username: user.username, email: user.email, password: user.password, adminPrevilages: user.adminPrevilages, displayName: user.displayName}
 
                         const token = jwt.sign({ newUser }, "IOTCART", { expiresIn:'300s' })
-                        await User.findOneAndUpdate({ username,password },{ $set: {token} })
-                        res.status(200).send({ token })
+                        const user1 = await User.findOneAndUpdate({ username,password },{ $set: {token} })
+                        res.status(200).send({ user })
                     }
                     else
                     {
