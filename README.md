@@ -1,5 +1,7 @@
 # fyp-cart-apis
 
+postman collection: https://api.postman.com/collections/17489146-9369fee5-3f8f-47bd-9549-8dd5e0796eeb?access_key=PMAT-01GWFDEZ21752660C2FE0P4SP6
+
 ## Intro:
 
 We are creating an e-commerce platform. We have narrowed everything down to 4 entities and there respective operations for now. 
