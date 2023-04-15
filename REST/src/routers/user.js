@@ -140,11 +140,10 @@
             
             try
             {
-                var spc = generateSpecialCode()
                 var user = await User.findOne({ username: username , email: email })
                 if(!user)
                 {
-                    const user1 = new User({ username,specialCode: spc , email, password: hashedPassword, displayName, adminPrevilages:false })
+                    const user1 = new User({ username, email, password: hashedPassword, displayName, adminPrevilages:false })
 
                     await user1.save()
                     res.status(200).send({message: "SUCCESS", user1 })
@@ -170,15 +169,13 @@
 
         try{
 
-        var spc = generateSpecialCode()
-
         var user = await User.findOne({ username: username , email: email })
         if(!user)
         {
             
             const hashedPassword = await bcrypt.hash(password, 10)
 
-            const user1 = new User({ username,specialCode: spc , email, password: hashedPassword, displayName, adminPrevilages:true })
+            const user1 = new User({ username, email, password: hashedPassword, displayName, adminPrevilages:true })
             await user1.save()
             res.status(200).send({message: "SUCCESS", user1 })
         }
@@ -247,21 +244,16 @@
 
 
         //connect to cart
-        router.post('/connect/user/:userId/cart/:cartId', verifyToken , async (req, res) => {
+        router.post('/users/:userId/connect', async (req, res) => {
 
         let specialCode = req.body.specialCode
-        let cartId = req.params.cartId
         let _id = req.params.userId
 
-        if(specialCode == null)
+        if(specialCode == null || specialCode == "")
         {
             res.status(400).send({message: "Please enter special Code"})
         }
-        else if(cartId == null)
-        {
-            res.status(400).send({message: "Please enter cartNumber"})
-        }
-        else if(_id == null)
+        else if(_id == null || _id == "")
         {
             res.status(400).send({message: "Please enter id"})
         }
@@ -270,7 +262,7 @@
             try
             {
                 const user = await User.findOne({_id})
-                const cart = await Cart.findOne({_id: cartId})
+                const cart = await Cart.findOne({ specialCode })
                 if(!user)
                 {
                     res.status(400).send({message: "User not found"})
@@ -287,14 +279,10 @@
                 {
                     res.status(500).send({message:"Cart is already linked to a user"})
                 }
-                else if(specialCode != user.specialCode)
-                {
-                    res.status(400).send({message: "Special code mismatch - Please enter correct special Code", expected: user.specialCode, entered: specialCode})
-                }
                 else
                 {
                     const dispUser = await User.findOneAndUpdate({ _id },{ cartConnection:true })
-                    const dispCart = await Cart.findOneAndUpdate({ _id: cartId },{ username:user.username , userConnection:true })
+                    const dispCart = await Cart.findOneAndUpdate({ specialCode },{ username:user.username , userConnection:true })
                     res.status(200).send({message: "SUCCESS",dispCart, dispUser})
                 }
                 
@@ -310,7 +298,7 @@
 
 
         //remove cart connection
-        router.post('/disconnect/user/:userId', verifyToken ,async (req,res) => {
+        router.post('/users/:userId/disconnect',async (req,res) => {
 
         try
         {

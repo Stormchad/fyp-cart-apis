@@ -7,9 +7,14 @@ const auth = require('../middleware/verifyToken')
 const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
-router.post('/admin/carts/create', verifyToken , async (req, res) => {
+const generateSpecialCode = () =>{
+    return Math.random().toString(36).slice(2, 7);
+    }
+
+router.post('/admin/carts/create', async (req, res) => {
 
     let cartNumber = req.body.cartNumber
+
     const cart = await Cart.findOne({cartNumber})
     if(cart)
     {
@@ -19,8 +24,9 @@ router.post('/admin/carts/create', verifyToken , async (req, res) => {
     {
         try
         {
+            let spc = generateSpecialCode()
 
-            const cart1 = new Cart({ cartNumber,userConnection: false })
+            const cart1 = new Cart({ cartNumber,specialCode: spc ,userConnection: false })
             await cart1.save()
             res.status(200).send({message: "SUCCESS", cart1})
 
@@ -97,7 +103,7 @@ router.get('/cart/:cartId', async (req,res)=>{
 })
 
 //add to cart
-router.post('/cart/addToCart/:cartId', async (req,res) => {
+router.post('/cart/:cartId/addToCart/', async (req,res) => {
 
         productCode = req.body.productCode
         quantity = req.body.quantity
