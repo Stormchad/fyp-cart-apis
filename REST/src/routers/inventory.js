@@ -55,6 +55,35 @@
 
             })
 
+            //get inventory by inventoryId
+            router.get('/admin/inventory/:inventoryId', async (req, res) =>{
+
+                _id = req.params.inventoryId
+
+                if(_id == null || _id == "")
+                {
+                    res.status(400).send({message: "Please enter inventoryId"})
+                }
+
+                try
+                {
+                    const inventory = await Inventory.findOne({ _id })
+                    if(!inventory)
+                    {
+                        res.status(404).send({message: "Inventory not found"})
+                    }
+                    else
+                    {
+                        res.status(200).send({inventory})                        
+                    }
+
+                }
+                catch(e)
+                {
+                    res.status(500).send({message: "Some error occurred", e})
+                }
+            })
+
             //get inventory by productCode
             router.get('/admin/inventory/', verifyToken ,async ( req, res ) => {
                 
@@ -80,7 +109,7 @@
                 }
             })
 
-            router.get('/admin/inventory/all', verifyToken ,async (req , res) => {
+            router.get('/admin/inventory/all',async (req , res) => {
 
                 try
                 {
