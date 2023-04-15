@@ -17,6 +17,11 @@ const cartSchema = new mongoose.Schema({
     },
     checkoutComplete:{
         type: Boolean
+    },
+    specialCode:{
+        type:String,
+        required:true,
+        unique:true
     }
 
 },
