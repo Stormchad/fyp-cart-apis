@@ -200,7 +200,7 @@
 
 
         //get user by id
-        router.get('/user/:userId', verifyToken , async (req, res) => {
+        router.get('/user/:userId' , async (req, res) => {
         try 
         {
             let _id = req.params.userId
@@ -222,7 +222,7 @@
 
 
         //get user by username
-        router.get('/users/username', verifyToken , async (req, res) => {
+        router.get('/users/username', async (req, res) => {
         try 
         {
             let username = req.body.username
@@ -334,7 +334,7 @@
 
 
         //delete user
-        router.delete('/user/:userId', verifyToken ,async (req,res) => {
+        router.delete('/user/:userId',async (req,res) => {
 
 
         try
@@ -360,7 +360,7 @@
         
 
         // logout
-        router.post('/user/logout', verifyToken, async (req, res) => {
+        router.post('/user/logout' , async (req, res) => {
 
             try
             {
@@ -379,7 +379,7 @@
         
 
         //update user
-        router.put('/user/:userId', verifyToken , async (req, res) => {
+        router.put('/user/:userId',  async (req, res) => {
 
             _id = req.params.userId
             jsonBody = req.body

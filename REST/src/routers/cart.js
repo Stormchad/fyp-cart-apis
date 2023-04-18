@@ -3,7 +3,6 @@ const User = require('../models/user')
 const Cart = require('../models/cart')
 const Inventory = require('../models/Inventory')
 const Product = require('../models/Product')
-const auth = require('../middleware/verifyToken')
 const verifyToken = require('../middleware/verifyToken')
 const router = new express.Router()
 
@@ -145,11 +144,16 @@ router.post('/cart/:cartId/addToCart/', async (req,res) => {
                 else
                 {
 
+                    //adding product in cart
+                    await Cart.findOneAndUpdate({_id},{$push: {products: product}})
+
+                    let newCart = await Cart.findOne({_id})
+
                     //logic for total
                     let total = 0;
-                    for(var i = 0; i < cart.products.length;i++)
+                    for(var i = 0; i < newCart.products.length;i++)
                     {
-	                    total = total + cart.products[i].productPrice
+	                    total = total + newCart.products[i].productPrice
                     }
 
                     let q = inventory.quantity
@@ -157,12 +161,9 @@ router.post('/cart/:cartId/addToCart/', async (req,res) => {
                     //reducing inventory count
                     await Inventory.findOneAndUpdate({productCode:productCode},{ quantity : q - 1 })
 
-                    //adding product in cart
-                    await Cart.findOneAndUpdate({_id},{$push: {products: product}})
-                    
-
                     //updating total bill
                     await Cart.findOneAndUpdate({_id},{$set: {totalBill: total}})
+
                     res.status(200).send(await Cart.findOne({_id}))
                 }
             }

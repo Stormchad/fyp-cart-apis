@@ -8,7 +8,7 @@
 
 
             //update inventory for a product
-            router.post('/admin/inventory', verifyToken ,async (req, res) => {
+            router.post('/admin/inventory',async (req, res) => {
 
                 const productCode = req.body.productCode
                 const q = req.body.quantity
@@ -85,7 +85,7 @@
             })
 
             //get inventory by productCode
-            router.get('/admin/inventory/', verifyToken ,async ( req, res ) => {
+            router.get('/admin/inventory/' ,async ( req, res ) => {
                 
                 productCode = req.body.productCode
 
