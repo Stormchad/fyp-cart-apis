@@ -5,14 +5,14 @@ const userRouter = require('./routers/user')
 const cartRouter = require('./routers/cart')
 const inventoryRouter = require('./routers/inventory')
 const productRouter = require('./routers/product')
-
+const cors = require("cors");
 const app = express()
 
 
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 app.use(express.json())
-
+app.use(cors());
 app.use(userRouter)
 app.use(productRouter)
 app.use(cartRouter)
