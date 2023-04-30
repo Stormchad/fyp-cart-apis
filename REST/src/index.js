@@ -8,8 +8,8 @@ app.listen(port, () => {
 
 
         //delete user
-        router.get('/user/:userId',async (req,res) => {
+        app.get('/',async (req,res) => {
 
             res.status(200).send({message: "hey there! Welcome to IOT-BASED-SHOPPING-CART"})
 
-            })
+        })
