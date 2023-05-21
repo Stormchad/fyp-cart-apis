@@ -1,7 +1,7 @@
 const express = require('express')
 require('./db/mongoose')
 const bp = require('body-parser')
-const userRouter = require('./routers/user')
+const userRouter = require('./routers/User')
 const cartRouter = require('./routers/cart')
 const inventoryRouter = require('./routers/inventory')
 const productRouter = require('./routers/product')

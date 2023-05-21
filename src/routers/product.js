@@ -1,5 +1,5 @@
 const express = require('express')
-const User = require('../models/user')
+const User = require('../models/User')
 const Cart = require('../models/cart')
 const Inventory = require('../models/Inventory')
 const Product = require('../models/Product')
