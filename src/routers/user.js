@@ -1,6 +1,6 @@
         const express = require('express')
         const User = require('../models/User')
-        const Cart = require('../models/cart')
+        const Cart = require('../models/Cart')
         const verifyToken = require('../middleware/verifyToken')
         const jwt = require('jsonwebtoken')
         const router = new express.Router()

@@ -1,6 +1,6 @@
 const express = require('express')
 const User = require('../models/User')
-const Cart = require('../models/cart')
+const Cart = require('../models/Cart')
 const Inventory = require('../models/Inventory')
 const Product = require('../models/Product')
 const verifyToken = require('../middleware/verifyToken')
