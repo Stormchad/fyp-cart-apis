@@ -1,5 +1,5 @@
         const express = require('express')
-        const User = require('../models/user')
+        const User = require('../models/User')
         const Cart = require('../models/cart')
         const verifyToken = require('../middleware/verifyToken')
         const jwt = require('jsonwebtoken')
