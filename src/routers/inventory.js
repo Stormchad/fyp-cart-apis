@@ -28,28 +28,29 @@
                         const product = await Product.findOne({ productCode })
                         const inventory = await Inventory.findOne({ productCode })
                     
-                        if(!product)
+                        if(product)
                         {
-                        console.log("1")
-                        res.status(400).send({message:"Product not found - Try creating the product first"})   
-                        }
-                        if(!inventory)
-                        {   
-                            console.log("2")
-                            var i1 = new Inventory ({productCode, quantity:q})
-                            await i1.save()
-                            res.status(200).send({message: "SUCCESS", i1})   
-                        }
-                        else if(inventory)
+                            if(!inventory)
+                            {   
+                                var i1 = new Inventory ({productCode, quantity:q})
+                                await i1.save()
+                                res.status(200).send({message: "SUCCESS", i1})   
+                            }
+                            else
+                            {
+                                const inventory1 = await Inventory.findOneAndUpdate({productCode},{quantity:q}) 
+                                res.status(200).send({message: "SUCCESS", inventory1})
+                            }
+                        }   
+                        else
                         {
-                            console.log("3")
-                            const inventory1 = await Inventory.findOneAndUpdate({productCode},{quantity:q}) 
-                            res.status(200).send({message: "SUCCESS", inventory1})
+                            res.status(404).send({message: "product not found."})
                         }
+
                     }   
                     catch(e)
                     {
-                        res.status(500).send({message:"Error occurred",e})   
+                        res.status(500).send({message:"Error occurred - check if product exists",e})   
                     } 
                 }
 
