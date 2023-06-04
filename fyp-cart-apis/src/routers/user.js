@@ -137,15 +137,15 @@
             let displayName = req.body.displayName
 
             const hashedPassword = await bcrypt.hash(password, 8)
-            
             try
             {
                 var user = await User.findOne({ username: username , email: email })
+
                 if(!user)
                 {
                     const user1 = new User({ username, email, password: hashedPassword, displayName, adminPrevilages:false })
-
                     await user1.save()
+                    console.log("1")
                     res.status(200).send({message: "SUCCESS", user1 })
                 }
                 else
@@ -158,6 +158,9 @@
                 res.status(400).send({ message: "Some error occured", e})
             }
         })
+
+
+
 
         //create new admin
         router.post('/admins/register', async (req, res) => {
@@ -283,7 +286,7 @@
                 {
                     const dispUser = await User.findOneAndUpdate({ _id },{ cartConnection:true })
                     const dispCart = await Cart.findOneAndUpdate({ specialCode },{ username:user.username , userConnection:true })
-                    res.status(200).send({message: "SUCCESS",dispCart, dispUser})
+                    res.status(200).send({message: `you connected to cartNumber: ${cart.cartNumber}`})
                 }
                 
         }
@@ -321,7 +324,7 @@
                 {
                     const user1 = await User.findOneAndUpdate({_id},{cartConnection:false})
                     const cart1 = await Cart.findOneAndUpdate({ username },{userConnection:false, username:null})
-                    res.status(200).send({message:"SUCCESS",user1, cart1})
+                    res.status(200).send({message: `you disconnected from cartNumber: ${cart.cartNumber}`})
                 }
             }
             

@@ -109,18 +109,11 @@
                 }
             })
 
-            router.get('/admin/inventory/all',async (req , res) => {
+            //get all Inventory
+            router.get('/inventories/all', async( req , res ) => {
 
-                try
-                {
-                    const inventory = await Inventory.find()
-                    res.status(200).send(inventory)
-                }
-                catch(e)
-                {
-                    res.status(500).send({message:"Error occurred",e})
-                }
-                
+            const inventory = await Inventory.find()
+            res.status(200).send(inventory)
 
             })
 

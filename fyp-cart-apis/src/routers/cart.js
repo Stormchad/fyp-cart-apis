@@ -25,7 +25,7 @@ router.post('/admin/carts/create', async (req, res) => {
         {
             let spc = generateSpecialCode()
 
-            const cart1 = new Cart({ cartNumber,specialCode: spc ,userConnection: false })
+            const cart1 = new Cart({ cartNumber,specialCode: spc ,userConnection: false, checkoutComplete: false })
             await cart1.save()
             res.status(200).send({message: "SUCCESS", cart1})
 
@@ -187,7 +187,7 @@ router.post('/admin/cart/reset/:cartId', async (req,res)=>{
 
     _id = req.params.cartId
 
-    if(cartNumber == null)
+    if(_id == null)
     {
         res.status(400).send({message:"Please enter cartId"})
     }
@@ -195,7 +195,7 @@ router.post('/admin/cart/reset/:cartId', async (req,res)=>{
     {
         try
         {
-            const cart = await Cart.findOneAndUpdate({_id},{ $set: {products:[], totalBill:0, checkoutComplete: false, userConnection:false, username: null}})
+            const cart = await Cart.findOneAndUpdate({_id},{ $set: {products:[], totalBill:0, checkoutComplete: false}})
             res.status(200).send({message:"SUCCESS",cart})
         }
         catch(e)

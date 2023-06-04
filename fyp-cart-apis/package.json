@@ -2,9 +2,9 @@
   "name": "fyp-cart-apis",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "nodemon src/index.js"
   },
   "jest": {
     "testEnvironment": "node"
@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
+  },
+  "engines":{
+    "node": "16"
   }
 }
