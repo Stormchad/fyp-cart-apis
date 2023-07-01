@@ -145,7 +145,7 @@ router.post('/cart/:cartId/addToCart/', async (req,res) => {
                 {
 
                     //adding product in cart
-                    await Cart.findOneAndUpdate({_id},{$push: {products: product}})
+                    await Cart.findOneAndUpdate({_id},{$push: {products: {$each: [product], $position: 0}}}); 
 
                     let newCart = await Cart.findOne({_id})
 
